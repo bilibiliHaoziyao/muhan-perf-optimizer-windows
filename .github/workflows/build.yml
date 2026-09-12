@@ -19,8 +19,7 @@ jobs:
 
       - run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
 
-      # 跳过 MSIX 打包（没有 Appx 工具）
-      - name: Patch PriGen targets
+      - name: Patch PriGen
         run: |
           Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
             $c = Get-Content $_.FullName -Raw
@@ -33,18 +32,22 @@ jobs:
 
       - name: Publish
         run: dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
-        env:
-          DOTNET_CLI_UI_LANGUAGE: 'en-US'
 
+      # 下面的 step 只有在 Publish 成功时才会执行
       - name: Verify
+        if: success()
         run: Get-ChildItem -Recurse .\publish\win-x64 | Measure-Object | Select-Object Count
 
-      - name: Inno Setup
-        run: |
-          winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\setup\MuhanPerfOpt.iss
+      - name: Install Inno
+        if: success()
+        run: winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
+
+      - name: Build Installer
+        if: success()
+        run: & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\setup\MuhanPerfOpt.iss
 
       - uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: Setup
           path: setup\output\*.exe
