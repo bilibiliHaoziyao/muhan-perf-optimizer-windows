@@ -10,6 +10,7 @@
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <SelfContained>true</SelfContained>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <DebugType>embedded</DebugType>
     <Version>74.1.0</Version>
     <AssemblyVersion>74.1.0</AssemblyVersion>

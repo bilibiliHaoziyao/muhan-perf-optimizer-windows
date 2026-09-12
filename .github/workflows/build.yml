@@ -37,7 +37,21 @@ jobs:
       - name: Build first (get detailed XAML errors)
         run: |
           dotnet build .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
-            -c Release -v normal 2>&1 | Tee-Object -FilePath build.log
+            -c Release 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "=== XamlCompiler diagnostic ==="
+            $xc = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\tools\net472\XamlCompiler.exe" -ErrorAction SilentlyContinue | Select-Object -Last 1
+            if ($xc) {
+              Write-Host "Found XamlCompiler: $($xc.FullName)"
+              $inputJson = (Get-ChildItem ".\src\MuhanPerfOpt\obj\Release\*\win-x64\input.json" -ErrorAction SilentlyContinue | Select-Object -Last 1)
+              if ($inputJson) {
+                Write-Host "Input JSON: $($inputJson.FullName)"
+                & $xc.FullName $inputJson.FullName "$env:TEMP\xaml_out.json" 2>&1 | Write-Host
+                Write-Host "Exit code: $LASTEXITCODE"
+              }
+            }
+            exit $LASTEXITCODE
+          }
 
       - name: Publish app (SelfContained)
         run: |
