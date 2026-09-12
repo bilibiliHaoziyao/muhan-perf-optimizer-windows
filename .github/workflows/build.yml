@@ -20,20 +20,25 @@ jobs:
       - name: Restore
         run: dotnet restore src/MuhanPerfOpt/MuhanPerfOpt.csproj
 
-      - name: Patch targets to skip XamlCompiler
+      - name: Patch targets
         shell: pwsh
         run: |
           $sdkPath = "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk"
-          Write-Host "SDK path: $sdkPath"
           Get-ChildItem $sdkPath -Directory | ForEach-Object {
             $verPath = $_.FullName
-            Write-Host "Version path: $verPath"
             Get-ChildItem "$verPath\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
               $c = Get-Content $_.FullName -Raw
-              $new = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
-              $new = $new.Replace('XamlCompiler.exe', 'XamlCompiler.exe" /c "echo Skipped XamlCompiler')
+              $new = $c
+              # Patch 1: disable PriGen ExpandPriContent
+              $new = $new.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
+              # Patch 2: replace XamlCompiler.exe exec command with a no-op that creates output.json
+              # The targets file uses $(XamlCompilerPath) $(XamlCompilerInputJson) $(XamlCompilerOutputJson)
+              $new = $new.Replace(
+                'Command="$(XamlCompilerPath) $(XamlCompilerInputJson) $(XamlCompilerOutputJson)"',
+                'Command="cmd /c echo {} > $(XamlCompilerOutputJson)"'
+              )
               if ($new -ne $c) {
-                Write-Host "Patched $($_.FullName)"
+                Write-Host "Patched $($_.Name)"
                 Set-Content $_.FullName -Value $new -NoNewline
               }
             }
