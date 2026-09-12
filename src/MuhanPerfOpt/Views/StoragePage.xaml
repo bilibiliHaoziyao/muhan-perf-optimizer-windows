@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="MuhanPerfOpt.Views.StoragePage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Padding="24" Spacing="16">
-        <TextBlock Text="StoragePage" Style="{ThemeResource TitleTextBlockStyle}" />
-    </StackPanel>
-</Page>
