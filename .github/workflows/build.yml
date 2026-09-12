@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       create_release:
-        description: '创建 GitHub Release'
+        description: 'Create GitHub Release'
         required: true
         default: true
         type: boolean
@@ -37,25 +37,18 @@ jobs:
       - name: Restore NuGet packages
         run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
 
-      - name: Patch PriGen targets (runner lacks Appx tasks)
+      - name: Patch PriGen targets
         run: |
           $targets = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets" | Select-Object -Last 1
           Write-Host "Patching: $($targets.FullName)"
-          # Comment out ALL ExpandPriContent references - replace the task name with something broken
           $content = Get-Content $targets.FullName -Raw
           $content = $content -replace '<Microsoft\.Build\.Packaging\.Pri\.Tasks\.ExpandPriContent', '<!-- DISABLED -->'
           Set-Content -Path $targets.FullName -Value $content -NoNewline
-          Write-Host "Patched. Verifying..."
-          Select-String -Path $targets.FullName -Pattern "ExpandPriContent" | Select-Object -First 3
+          Write-Host "Patched successfully"
 
-      - name: Publish app (WinUI 3 unpackaged)
+      - name: Publish app
         run: |
-          dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
-            -c Release `
-            -r win-x64 `
-            --self-contained true `
-            --no-restore `
-            -o .\publish\win-x64
+          dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
           if ($LASTEXITCODE -ne 0) { Write-Host "Publish failed!"; exit $LASTEXITCODE }
 
       - name: Verify publish output
@@ -71,7 +64,7 @@ jobs:
           path: setup\output\*.exe
           retention-days: 30
 
-      - name: Create GitHub Release (tag trigger)
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
