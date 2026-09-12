@@ -34,21 +34,24 @@ jobs:
           winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
           echo "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Publish app (unpackaged WinUI 3)
+      # HACK: Patch Windows App SDK targets to skip PriGen (runner lacks MSBuild Appx tasks)
+      - name: Patch PriGen targets (unpackaged build)
+        run: |
+          $targets = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets" | Select-Object -Last 1
+          Write-Host "Patching: $($targets.FullName)"
+          # 注释掉 ExpandPriContent 任务 (line ~914 area)
+          (Get-Content $targets.FullName -Raw) -replace '<Microsoft\.Build\.Packaging\.Pri\.Tasks\.ExpandPriContent', '<!-- HACKED -->' | Set-Content $targets.FullName
+          Write-Host "Patched successfully"
+
+      - name: Publish app (WinUI 3 unpackaged)
         run: |
           dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
-            -o .\publish\win-x64 `
-            /p:EnableMsixTooling=false `
-            /p:WindowsPackageType=None `
-            /p:AppxPriXmlFiles= `
-            /p:PriGenPlatform= `
-            /p:EnablePriGen=false
+            -o .\publish\win-x64
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "=== Full publish output ==="
-            Get-Content build.log -ErrorAction SilentlyContinue
+            Write-Host "=== Publish failed ==="
             exit $LASTEXITCODE
           }
 
