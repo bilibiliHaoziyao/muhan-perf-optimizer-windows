@@ -4,47 +4,46 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls">
 
     <ScrollView Padding="24" Background="{ThemeResource SystemControlPageBackgroundAltitudeBrush}">
         <StackPanel Spacing="16">
             <TextBlock Text="屏幕" Style="{ThemeResource TitleTextBlockStyle}" />
             <TextBlock Text="显示器分辨率与刷新率信息" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
 
-            <toolkit:UniformGrid Columns="3" Spacing="16">
-                <toolkit:Card Padding="20">
+            <Grid>
+                <Border Padding="20" Background="{ThemeResource SystemControlHighlightAltListLowBrush}" CornerRadius="8">
                     <StackPanel Spacing="6">
                         <TextBlock Text="分辨率" Style="{ThemeResource SubheaderTextBlockStyle}" />
                         <TextBlock Text="{Binding Resolution}"
                             Style="{ThemeResource HeaderTextBlockStyle}"
                             Foreground="{ThemeResource SystemAccentColorBrush}" />
                     </StackPanel>
-                </toolkit:Card>
+                </Border>
 
-                <toolkit:Card Padding="20">
+                <Border Padding="20" Background="{ThemeResource SystemControlHighlightAltListLowBrush}" CornerRadius="8">
                     <StackPanel Spacing="6">
                         <TextBlock Text="刷新率" Style="{ThemeResource SubheaderTextBlockStyle}" />
                         <TextBlock Text="{Binding RefreshRate, StringFormat='{}{0:F0} Hz'}"
                             Style="{ThemeResource HeaderTextBlockStyle}" />
                     </StackPanel>
-                </toolkit:Card>
+                </Border>
 
-                <toolkit:Card Padding="20">
+                <Border Padding="20" Background="{ThemeResource SystemControlHighlightAltListLowBrush}" CornerRadius="8">
                     <StackPanel Spacing="6">
                         <TextBlock Text="显示器数量" Style="{ThemeResource SubheaderTextBlockStyle}" />
                         <TextBlock Text="{Binding Monitors}"
                             Style="{ThemeResource HeaderTextBlockStyle}" />
                     </StackPanel>
-                </toolkit:Card>
-            </toolkit:UniformGrid>
+                </Border>
+            </Grid>
 
-            <toolkit:Card Padding="24">
+            <Border Padding="24" Background="{ThemeResource SystemControlHighlightAltListLowBrush}" CornerRadius="8">
                 <StackPanel Spacing="10">
                     <TextBlock Text="提示" Style="{ThemeResource SubheaderTextBlockStyle}" />
                     <TextBlock Text="如需调整分辨率或刷新率，请右键桌面 → 显示设置。高刷新率可提升游戏流畅度。"
                         TextWrapping="Wrap" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                 </StackPanel>
-            </toolkit:Card>
+            </Border>
         </StackPanel>
     </ScrollView>
 </Page>
