@@ -13,38 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install Inno Setup
-        run: winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
+      - run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
 
-      - name: Restore packages
-        run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
-
-      - name: Patch PriGen targets
-        run: |
-          $files = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets"
-          foreach ($f in $files) {
-            Write-Host "Patching $($f.FullName)"
-            $c = Get-Content $f.FullName -Raw
-            $c = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED -->')
-            Set-Content $f.FullName -Value $c -NoNewline
-          }
-
-      - name: Publish unpackaged app
-        run: dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
-
-      - name: Verify output
-        run: Get-ChildItem -Recurse .\publish\win-x64 | Measure-Object | Select-Object Count
-
-      - name: Build installer
-        run: "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' .\setup\MuhanPerfOpt.iss"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Setup
-          path: setup\output\*.exe
+      - run: Write-Host "Restore done"
