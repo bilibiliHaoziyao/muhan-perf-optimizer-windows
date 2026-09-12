@@ -8,6 +8,7 @@
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
     <GenerateAppxInstallerFile>false</GenerateAppxInstallerFile>
+    <UseXamlCompilerExecutable>false</UseXamlCompilerExecutable>
     <Version>74.1.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
