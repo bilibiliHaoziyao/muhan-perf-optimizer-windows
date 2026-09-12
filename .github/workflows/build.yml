@@ -34,14 +34,19 @@ jobs:
           winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
           echo "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      # HACK: Patch Windows App SDK targets to skip PriGen (runner lacks MSBuild Appx tasks)
-      - name: Patch PriGen targets (unpackaged build)
+      - name: Restore NuGet packages
+        run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
+
+      - name: Patch PriGen targets (runner lacks Appx tasks)
         run: |
           $targets = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets" | Select-Object -Last 1
           Write-Host "Patching: $($targets.FullName)"
-          # 注释掉 ExpandPriContent 任务 (line ~914 area)
-          (Get-Content $targets.FullName -Raw) -replace '<Microsoft\.Build\.Packaging\.Pri\.Tasks\.ExpandPriContent', '<!-- HACKED -->' | Set-Content $targets.FullName
-          Write-Host "Patched successfully"
+          # Comment out ALL ExpandPriContent references - replace the task name with something broken
+          $content = Get-Content $targets.FullName -Raw
+          $content = $content -replace '<Microsoft\.Build\.Packaging\.Pri\.Tasks\.ExpandPriContent', '<!-- DISABLED -->'
+          Set-Content -Path $targets.FullName -Value $content -NoNewline
+          Write-Host "Patched. Verifying..."
+          Select-String -Path $targets.FullName -Pattern "ExpandPriContent" | Select-Object -First 3
 
       - name: Publish app (WinUI 3 unpackaged)
         run: |
@@ -49,19 +54,15 @@ jobs:
             -c Release `
             -r win-x64 `
             --self-contained true `
+            --no-restore `
             -o .\publish\win-x64
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "=== Publish failed ==="
-            exit $LASTEXITCODE
-          }
+          if ($LASTEXITCODE -ne 0) { Write-Host "Publish failed!"; exit $LASTEXITCODE }
 
       - name: Verify publish output
-        run: |
-          Get-ChildItem -Recurse .\publish\win-x64 | Select-Object FullName, Length
+        run: Get-ChildItem -Recurse .\publish\win-x64 | Select-Object FullName, Length
 
       - name: Build Inno Setup installer
-        run: |
-          & "$env:ISCC" .\setup\MuhanPerfOpt.iss
+        run: & "$env:ISCC" .\setup\MuhanPerfOpt.iss
 
       - name: Upload Setup artifact
         uses: actions/upload-artifact@v4
