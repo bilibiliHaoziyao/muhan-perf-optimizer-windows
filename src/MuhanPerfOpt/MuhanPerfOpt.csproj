@@ -30,6 +30,9 @@
     <!-- MVVM 工具包 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 
+    <!-- Fluent 控件库 (Card / UniformGrid) -->
+    <PackageReference Include="CommunityToolkit.WinUI.Controls" Version="8.2.2" />
+
     <!-- 硬件监控 -->
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
 

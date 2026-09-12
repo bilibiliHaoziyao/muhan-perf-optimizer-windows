@@ -3,14 +3,15 @@
     x:Class="MuhanPerfOpt.Views.SystemPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls">
 
-    <ScrollView Padding="24" Background="{ThemeResource SystemControlBackgroundAltitudeHighBrightAcrylicWindowBrush}">
+    <ScrollView Padding="24" Background="{ThemeResource SystemControlPageBackgroundAltitudeBrush}">
         <StackPanel Spacing="16">
             <TextBlock Text="系统信息" Style="{ThemeResource TitleTextBlockStyle}" />
-            <TextBlock Text="操作系统与运行环境详情" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+            <TextBlock Text="操作系统与运行环境详情" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
 
-            <controls:Card Padding="24">
+            <toolkit:Card Padding="24">
                 <StackPanel Spacing="14">
                     <TextBlock Text="操作系统" Style="{ThemeResource SubheaderTextBlockStyle}" />
                     <Grid>
@@ -18,7 +19,7 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="版本" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text="版本" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding OsCaption}" TextWrapping="Wrap" />
                     </Grid>
                     <Grid>
@@ -26,7 +27,7 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="架构" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text="架构" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding ArchitectureText}" />
                     </Grid>
 
@@ -36,7 +37,7 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="计算机名" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text="计算机名" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding MachineName}" />
                     </Grid>
                     <Grid>
@@ -44,7 +45,7 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="当前用户" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text="当前用户" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding UserName}" />
                     </Grid>
                     <Grid>
@@ -52,7 +53,7 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="逻辑处理器" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text="逻辑处理器" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding ProcessorCount}" />
                     </Grid>
 
@@ -62,11 +63,11 @@
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text=".NET 版本" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                        <TextBlock Grid.Column="0" Text=".NET 版本" Foreground="{ThemeResource SystemTextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding Framework}" />
                     </Grid>
                 </StackPanel>
-            </controls:Card>
+            </toolkit:Card>
         </StackPanel>
     </ScrollView>
 </Page>

@@ -8,6 +8,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Windows Community Toolkit 主题 (Card / UniformGrid) -->
+                <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls/Themes/Card.xaml" />
+                <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls/Themes/UniformGrid.xaml" />
                 <ResourceDictionary Source="Resources/Colors.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
