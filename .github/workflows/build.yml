@@ -34,42 +34,23 @@ jobs:
           winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
           echo "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Build first (get detailed XAML errors)
-        run: |
-          dotnet build .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
-            -c Release 2>&1 | Tee-Object -FilePath build.log
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "=== XamlCompiler diagnostic ==="
-            $xc = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\tools\net472\XamlCompiler.exe" -ErrorAction SilentlyContinue | Select-Object -Last 1
-            if ($xc) {
-              Write-Host "Found XamlCompiler: $($xc.FullName)"
-              $inputJson = (Get-ChildItem ".\src\MuhanPerfOpt\obj\Release\*\win-x64\input.json" -ErrorAction SilentlyContinue | Select-Object -Last 1)
-              if ($inputJson) {
-                Write-Host "Input JSON: $($inputJson.FullName)"
-                Write-Host "=== input.json content ==="
-                Get-Content $inputJson.FullName | Select-Object -First 50
-                Write-Host ""
-                Write-Host "=== Running XamlCompiler manually ==="
-                $outJson = "$env:TEMP\xaml_out.json"
-                $stdout = "$env:TEMP\xaml_stdout.txt"
-                $stderr = "$env:TEMP\xaml_stderr.txt"
-                & $xc.FullName $inputJson.FullName $outJson 1>$stdout 2>$stderr
-                Write-Host "Exit code: $LASTEXITCODE"
-                if (Test-Path $stdout) { Write-Host "=== STDOUT ==="; Get-Content $stdout }
-                if (Test-Path $stderr) { Write-Host "=== STDERR ==="; Get-Content $stderr }
-                if (Test-Path $outJson) { Write-Host "=== OUTPUT JSON ==="; Get-Content $outJson }
-              }
-            }
-            exit $LASTEXITCODE
-          }
-
-      - name: Publish app (SelfContained)
+      - name: Publish app (unpackaged WinUI 3)
         run: |
           dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
-            -o .\publish\win-x64
+            -o .\publish\win-x64 `
+            /p:EnableMsixTooling=false `
+            /p:WindowsPackageType=None `
+            /p:AppxPriXmlFiles= `
+            /p:PriGenPlatform= `
+            /p:EnablePriGen=false
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "=== Full publish output ==="
+            Get-Content build.log -ErrorAction SilentlyContinue
+            exit $LASTEXITCODE
+          }
 
       - name: Verify publish output
         run: |
