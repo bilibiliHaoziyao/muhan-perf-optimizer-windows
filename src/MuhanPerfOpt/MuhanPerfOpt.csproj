@@ -5,7 +5,7 @@
     <RootNamespace>MuhanPerfOpt</RootNamespace>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <!-- 关键：禁用 MSIX 打包（我们用 Inno Setup），需要 Appx 打包工具才会跑 PriGen -->
+    <!-- 跳过 MSIX 打包（用 Inno Setup） -->
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
@@ -14,4 +14,15 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
   </ItemGroup>
+
+  <!-- 覆盖 PriGen target：直接跳过 ExpandPriContent -->
+  <Target Name="ExpandPriContent" Condition="true">
+    <Message Text="Skipping MSIX PriGen (unpackaged build)" Importance="high" />
+  </Target>
+  <Target Name="GeneratePriFile" Condition="true">
+    <Message Text="Skipping MSIX PriGen file generation" Importance="high" />
+  </Target>
+  <Target Name="CreateAppxPackage" Condition="true">
+    <Message Text="Skipping MSIX package creation" Importance="high" />
+  </Target>
 </Project>
