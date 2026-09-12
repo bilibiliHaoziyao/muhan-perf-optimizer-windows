@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -56,7 +57,7 @@ public partial class OverviewViewModel : ObservableObject
         var days = uptime / 86400;
         var hrs = (uptime % 86400) / 3600;
         var mins = (uptime % 3600) / 60;
-        return days > 0 ? $"{days}天 {hrs}时 {mins}分" : $"{hrs}时 {mins}分";
+        return days > 0 ? $"{days}d {hrs}h {mins}m" : $"{hrs}h {mins}m";
     }
 
     public void Stop() => _timer.Dispose();
@@ -64,11 +65,11 @@ public partial class OverviewViewModel : ObservableObject
 
 public partial class OptimizeViewModel : ObservableObject
 {
-    [ObservableProperty] private int _cleanCount = SettingsService.Current.TotalCleanCount;
-    [ObservableProperty] private bool _autoCleanEnabled = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty] private int _threshold = SettingsService.Current.CleanThresholdPercent;
-    [ObservableProperty] private string _lastResult = "—";
-    [ObservableProperty] private bool _isRunning = OptimizeService.IsRunning;
+    [ObservableProperty]] private int _cleanCount = SettingsService.Current.TotalCleanCount;
+    [ObservableProperty]] private bool _autoCleanEnabled = SettingsService.Current.AutoCleanEnabled;
+    [ObservableProperty]] private int _threshold = SettingsService.Current.CleanThresholdPercent;
+    [ObservableProperty]] private string _lastResult = "-";
+    [ObservableProperty]] private bool _isRunning = OptimizeService.IsRunning;
 
     public ICommand CleanNowCommand { get; }
     public ICommand ToggleAutoCommand { get; }
@@ -84,11 +85,10 @@ public partial class OptimizeViewModel : ObservableObject
                 MemoryOptimizer.PurgeSystemFileCache();
                 SettingsService.IncrementCleanStat();
                 SettingsService.Save();
-                LastResult = $"Cleaned {r.Succeeded} processes, skipped {r.Skipped}, failed {r.Failed}";
+                LastResult = $"Cleaned {r.Succeeded}, skipped {r.Skipped}, failed {r.Failed}";
                 CleanCount = SettingsService.Current.TotalCleanCount;
             });
         });
-
         ToggleAutoCommand = new RelayCommand(() =>
         {
             AutoCleanEnabled = !AutoCleanEnabled;
@@ -98,7 +98,6 @@ public partial class OptimizeViewModel : ObservableObject
             else OptimizeService.Stop();
             SettingsService.Save();
         });
-
         SaveThresholdCommand = new RelayCommand(() =>
         {
             SettingsService.Current.CleanThresholdPercent = Threshold;
@@ -109,19 +108,24 @@ public partial class OptimizeViewModel : ObservableObject
 
 public partial class SettingsViewModel : ObservableObject
 {
-    [ObservableProperty] private bool _autoStart = SettingsService.Current.AutoStartEnabled;
-    [ObservableProperty] private bool _autoClean = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty] private bool _toastOnClean = SettingsService.Current.ShowToastOnClean;
+    [ObservableProperty]] private bool _autoStart = SettingsService.Current.AutoStartEnabled;
+    [ObservableProperty]] private bool _autoClean = SettingsService.Current.AutoCleanEnabled;
+    [ObservableProperty]] private bool _toastOnClean = SettingsService.Current.ShowToastOnClean;
 
-    public ICommand SaveCommand { get; } = new RelayCommand(() =>
+    public ICommand SaveCommand { get; }
+
+    public SettingsViewModel()
     {
-        SettingsService.Current.AutoStartEnabled = AutoStart;
-        SettingsService.Current.AutoCleanEnabled = AutoClean;
-        SettingsService.Current.ShowToastOnClean = ToastOnClean;
-        SettingsService.Save();
-        if (AutoStart) StartupManager.Enable(); else StartupManager.Disable();
-        if (AutoClean) OptimizeService.StartAutoClean(); else OptimizeService.Stop();
-    });
+        SaveCommand = new RelayCommand(() =>
+        {
+            SettingsService.Current.AutoStartEnabled = AutoStart;
+            SettingsService.Current.AutoCleanEnabled = AutoClean;
+            SettingsService.Current.ShowToastOnClean = ToastOnClean;
+            SettingsService.Save();
+            if (AutoStart) StartupManager.Enable(); else StartupManager.Disable();
+            if (AutoClean) OptimizeService.StartAutoClean(); else OptimizeService.Stop();
+        });
+    }
 }
 
 public class SocViewModel : ObservableObject
@@ -129,22 +133,34 @@ public class SocViewModel : ObservableObject
     private readonly System.Threading.Timer _timer;
     public float CpuPercent { get; private set; }
     public float CpuTempC { get; private set; }
-    public string CpuName { get; private set; } = "—";
+    public string CpuName { get; private set; } = "-";
     public float[] CoreUsages { get; private set; } = Array.Empty<float>();
     public float GpuPercent { get; private set; }
     public float GpuTempC { get; private set; }
     public float GpuFreqMhz { get; private set; }
-    public string GpuName { get; private set; } = "—";
+    public string GpuName { get; private set; } = "-";
 
     public SocViewModel()
     {
         _timer = new System.Threading.Timer(_ =>
         {
             var m = HardwareMonitor.Shared;
-            CpuPercent = m.CpuUsagePercent; CpuTempC = m.CpuTempC; CpuName = m.CpuName; CoreUsages = m.CpuCoreUsage;
-            GpuPercent = m.GpuUsagePercent; GpuTempC = m.GpuTempC; GpuFreqMhz = m.GpuFreqMhz; GpuName = m.GpuName;
-            OnPropertyChanged(nameof(CpuPercent), nameof(CpuTempC), nameof(CpuName), nameof(CoreUsages),
-                nameof(GpuPercent), nameof(GpuTempC), nameof(GpuFreqMhz), nameof(GpuName));
+            CpuPercent = m.CpuUsagePercent;
+            CpuTempC = m.CpuTempC;
+            CpuName = m.CpuName;
+            CoreUsages = m.CpuCoreUsage;
+            GpuPercent = m.GpuUsagePercent;
+            GpuTempC = m.GpuTempC;
+            GpuFreqMhz = m.GpuFreqMhz;
+            GpuName = m.GpuName;
+            OnPropertyChanged(nameof(CpuPercent));
+            OnPropertyChanged(nameof(CpuTempC));
+            OnPropertyChanged(nameof(CpuName));
+            OnPropertyChanged(nameof(CoreUsages));
+            OnPropertyChanged(nameof(GpuPercent));
+            OnPropertyChanged(nameof(GpuTempC));
+            OnPropertyChanged(nameof(GpuFreqMhz));
+            OnPropertyChanged(nameof(GpuName));
         }, null, 0, 1000);
     }
 }
@@ -155,7 +171,7 @@ public class StorageViewModel : ObservableObject
     public long RamTotalGb { get; private set; }
     public long RamUsedGb { get; private set; }
     public float RamPercent { get; private set; }
-    public List<DiskDriveInfo> Drives { get; private set; } = new(0, 0);
+    public List<DiskDriveInfo> Drives { get; private set; } = new();
 
     public StorageViewModel()
     {
@@ -165,21 +181,22 @@ public class StorageViewModel : ObservableObject
             RamTotalGb = m.RamTotalBytes / 1024 / 1024 / 1024;
             RamUsedGb = m.RamUsedBytes / 1024 / 1024 / 1024;
             RamPercent = m.RamTotalBytes > 0 ? (float)m.RamUsedBytes / m.RamTotalBytes * 100f : 0;
-
             var drives = new List<DiskDriveInfo>();
             foreach (var drive in System.IO.DriveInfo.GetDrives())
             {
                 try
                 {
                     if (drive.IsReady && drive.TotalSize > 0)
-                        drives.Add(new DiskDriveInfo(
-                            drive.Name, drive.VolumeLabel,
+                        drives.Add(new DiskDriveInfo(drive.Name, drive.VolumeLabel,
                             drive.TotalSize / 1024 / 1024 / 1024,
                             (drive.TotalSize - drive.AvailableFreeSpace) / 1024 / 1024 / 1024));
                 } catch { }
             }
             Drives = drives;
-            OnPropertyChanged(nameof(RamTotalGb), nameof(RamUsedGb), nameof(RamPercent), nameof(Drives));
+            OnPropertyChanged(nameof(RamTotalGb));
+            OnPropertyChanged(nameof(RamUsedGb));
+            OnPropertyChanged(nameof(RamPercent));
+            OnPropertyChanged(nameof(Drives));
         }, null, 0, 3000);
     }
 }
@@ -194,19 +211,15 @@ public class ScreenViewModel : ObservableObject
 
     public ScreenViewModel()
     {
-        Refresh();
-    }
-
-    public void Refresh()
-    {
         try
         {
-            Resolution = new ResolutionInfo(System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Width ?? 0,
-                System.Windows.Forms.Screen.PrimaryScreen?.Bounds.Height ?? 0);
+            var primary = System.Windows.Forms.Screen.PrimaryScreen;
+            Resolution = new ResolutionInfo(primary?.Bounds.Width ?? 0, primary?.Bounds.Height ?? 0);
             Monitors = System.Windows.Forms.Screen.AllScreens.Length;
-            // Refresh rate via GDI
             RefreshRate = QueryRefreshRate();
-            OnPropertyChanged(nameof(Resolution), nameof(RefreshRate), nameof(Monitors));
+            OnPropertyChanged(nameof(Resolution));
+            OnPropertyChanged(nameof(RefreshRate));
+            OnPropertyChanged(nameof(Monitors));
         }
         catch { }
     }
@@ -215,14 +228,13 @@ public class ScreenViewModel : ObservableObject
     {
         try
         {
-            using var ddc = System.Windows.Forms.Screen.PrimaryScreen;
-            // .NET 直接读 PrimaryScreen.DeviceName，通过 user32 GetDeviceCaps
-            var name = ddc?.DeviceName ?? "\\\\.\\DISPLAY1";
+            var primary = System.Windows.Forms.Screen.PrimaryScreen;
+            var name = primary?.DeviceName ?? "\\\\.\\DISPLAY1";
             var hdc = GetDC(name);
             if (hdc == IntPtr.Zero) return 60;
             try
             {
-                var value = GetDeviceCaps(hdc, 116); // VREFRESH
+                var value = GetDeviceCaps(hdc, 116);
                 return value > 0 ? value : 60;
             }
             finally { ReleaseDC(IntPtr.Zero, hdc); }
@@ -238,7 +250,7 @@ public class ScreenViewModel : ObservableObject
     private static extern int GetDeviceCaps(IntPtr hdc, int index);
 }
 
-public record ResolutionInfo(int Width, int Height) { public override string ToString() => $"{Width} × {Height}"; }
+public record ResolutionInfo(int Width, int Height) { public override string ToString() => $"{Width} x {Height}"; }
 
 public class SystemViewModel : ObservableObject
 {
@@ -248,5 +260,5 @@ public class SystemViewModel : ObservableObject
     public string Framework { get; private set; } = Environment.Version.ToString();
     public int ProcessorCount { get; private set; } = Environment.ProcessorCount;
     public bool Is64Bit { get; private set; } = Environment.Is64BitOperatingSystem;
-    public string ArchitectureText => Is64Bit ? "64 位" : "32 位";
+    public string ArchitectureText => Is64Bit ? "64-bit" : "32-bit";
 }

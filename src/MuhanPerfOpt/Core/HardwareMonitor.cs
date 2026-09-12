@@ -104,11 +104,11 @@ public sealed class HardwareMonitor : IDisposable
         {
             var comp = _computer;
             if (comp == null) return;
-            comp.Update();
+            // comp.Update();
 
             foreach (var hw in comp.Hardware)
             {
-                hw.Update();
+                // hw.Update();
                 switch (hw.HardwareType)
                 {
                     case HardwareType.Cpu:
