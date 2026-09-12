@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>MuhanPerfOpt</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+    <Version>74.1.0</Version>
+    <AssemblyVersion>74.1.0</AssemblyVersion>
+    <FileVersion>74.1.0</FileVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <NoWarn>NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WinUI 3 / Windows App SDK -->
+    <FrameworkReference Include="Microsoft.WindowsAppSDK" Version="1.6.240830007" />
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
+
+    <!-- MVVM 工具包 -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+
+    <!-- 硬件监控 -->
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
+
+    <!-- 系统托盘 -->
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.3.1" />
+
+    <!-- JSON 配置 -->
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <!-- WinUI 3 XAML 编译器 -->
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="**\*.xaml" Exclude="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\icon.png" />
+    <Image Include="Assets\icon.png" />
+    <Resource Include="Assets\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+</Project>

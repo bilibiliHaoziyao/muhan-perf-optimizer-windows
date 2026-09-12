@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MuhanPerfOpt.Views.OptimizePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+
+    <ScrollView Padding="24" Background="{ThemeResource SystemControlBackgroundAltitudeHighBrightAcrylicWindowBrush}">
+        <StackPanel Spacing="16">
+            <TextBlock Text="内存优化" Style="{ThemeResource TitleTextBlockStyle}" />
+            <TextBlock Text="强制归还所有进程的工作集到物理内存，降低 RAM 占用" Foreground="{ThemeResource SystemColorGrayTextColor}" TextWrapping="Wrap" />
+
+            <!-- 立即清理 -->
+            <controls:Card Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="手动清理" Style="{ThemeResource SubheaderTextBlockStyle}" />
+                    <Button Content="立即清理所有进程"
+                            Command="{Binding CleanNowCommand}"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource AccentButtonStyle}" />
+                    <TextBlock Text="{Binding LastResult}" Foreground="{ThemeResource SystemColorHighlightColor}" />
+                    <TextBlock Text="{Binding CleanCount, StringFormat='累计清理次数：{0}'}" Foreground="{ThemeResource SystemColorGrayTextColor}" />
+                </StackPanel>
+            </controls:Card>
+
+            <!-- 自动清理设置 -->
+            <controls:Card Padding="24">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="后台自动清理" Style="{ThemeResource SubheaderTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <ToggleSwitch IsOn="{Binding AutoCleanEnabled}" OnContent="已开启" OffContent="已关闭" />
+                        <TextBlock Text="{Binding IsRunning, StringFormat='运行中：{0}'}" />
+                        <Button Content="切换" Command="{Binding ToggleAutoCommand}" />
+                    </StackPanel>
+                    <TextBlock Text="清理阈值" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Slider Minimum="50" Maximum="95" Value="{Binding Threshold}" Width="300" />
+                        <TextBlock Text="{Binding Threshold, StringFormat='{} {} %'}" />
+                        <Button Content="保存" Command="{Binding SaveThresholdCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </controls:Card>
+        </StackPanel>
+    </ScrollView>
+</Page>

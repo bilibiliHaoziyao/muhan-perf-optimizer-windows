@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="MuhanPerfOpt.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d">
+
+    <controls:NavigationView
+        x:Name="NavView"
+        PaneDisplayMode="Left"
+        IsSettingsVisible="True"
+        SettingsItemTag="settings"
+        Background="{ThemeResource SystemControlBackgroundAcrylicWindowBrush}"
+        IsTitleBarAutoPaddingEnabled="True">
+
+        <controls:NavigationView.MenuItems>
+            <controls:NavigationViewItem Content="概览" Tag="overview" Icon="{controls:SymbolIcon Symbol=Home}" />
+            <controls:NavigationViewItem Content="SOC" Tag="soc" Icon="{controls:SymbolIcon Symbol=Processor}" />
+            <controls:NavigationViewItem Content="内存优化" Tag="optimize" Icon="{controls:SymbolIcon Symbol=SparkleAppListIcon}" />
+            <controls:NavigationViewItem Content="存储" Tag="storage" Icon="{controls:SymbolIcon Symbol=Folder}" />
+            <controls:NavigationViewItem Content="屏幕" Tag="screen" Icon="{controls:SymbolIcon Symbol=Monitor}" />
+            <controls:NavigationViewItem Content="系统" Tag="system" Icon="{controls:SymbolIcon Symbol=System}" />
+        </controls:NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame" />
+
+        <controls:NavigationView.SettingsItem>
+            <controls:NavigationViewItem Content="设置" Tag="settings" Icon="{controls:SymbolIcon Symbol=Setting}" />
+        </controls:NavigationView.SettingsItem>
+    </controls:NavigationView>
+</Window>
