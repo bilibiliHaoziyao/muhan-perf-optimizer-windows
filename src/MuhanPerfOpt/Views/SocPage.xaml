@@ -1,0 +1,84 @@
+<Page x:Class="MuhanPerfOpt.Views.SocPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:vm="clr-namespace:MuhanPerfOpt.ViewModels"
+      Title="CPU / GPU"
+      Background="{DynamicResource BackgroundBrush}">
+    <Page.DataContext>
+        <vm:SocViewModel/>
+    </Page.DataContext>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <TextBlock Text="CPU & GPU Monitor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
+            
+            <hc:Card Margin="8" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="CPU" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Usage" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding CpuUsage}" Maximum="100" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding CpuUsageText}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Temp" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding CpuTemp}" Maximum="100" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding CpuTempText}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Cores" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding CpuCores}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </hc:Card>
+
+            <hc:Card Margin="8" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="GPU" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Usage" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding GpuUsage}" Maximum="100" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding GpuUsageText}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Temp" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding GpuTemp}" Maximum="100" Height="16" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding GpuTempText}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Memory" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding GpuMemory}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </hc:Card>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

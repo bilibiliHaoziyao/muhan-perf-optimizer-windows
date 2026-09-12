@@ -65,6 +65,13 @@ public sealed class HardwareMonitor : IDisposable
 
     public bool IsRunning { get; private set; }
 
+public float RamPercent => RamTotalBytes > 0 ? (float)RamUsedBytes * 100 / RamTotalBytes : 0;
+    public float RamUsedGb => RamUsedBytes / 1024f / 1024 / 1024;
+    public float RamTotalGb => RamTotalBytes / 1024f / 1024 / 1024;
+    public float GpuMemoryUsedMb { get; private set; }
+    public float GpuMemoryTotalMb { get; private set; }
+    public void EnsureStarted() { if (!IsRunning) Start(); }
+
     public void Start()
     {
         if (IsRunning) return;

@@ -1,264 +1,235 @@
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Management;
+using System.Windows.Forms;
+using System.Windows.Threading;
 using MuhanPerfOpt.Core;
 
 namespace MuhanPerfOpt.ViewModels;
 
-public partial class OverviewViewModel : ObservableObject
+/// <summary>
+/// 所有页面共用的数据上下文。用 DispatcherTimer 保证 UI 线程更新。
+/// </summary>
+public class MainViewModel : INotifyPropertyChanged, IDisposable
 {
-    private readonly System.Threading.Timer _timer;
+    private readonly DispatcherTimer _timer;
 
-    [ObservableProperty] private float _cpuPercent;
-    [ObservableProperty] private float _cpuTempC;
-    [ObservableProperty] private string _cpuName = "—";
-    [ObservableProperty] private float _gpuPercent;
-    [ObservableProperty] private float _gpuTempC;
-    [ObservableProperty] private string _gpuName = "—";
-    [ObservableProperty] private long _ramUsedGb;
-    [ObservableProperty] private long _ramTotalGb;
-    [ObservableProperty] private float _ramPercent;
-    [ObservableProperty] private float _batteryPercent = -1;
-    [ObservableProperty] private float _batteryPowerW;
-    [ObservableProperty] private string _uptime = "—";
+    // ========== 公共属性 ==========
+    public float CpuUsage { get; private set; }
+    public string CpuUsageText => $"{CpuUsage:F0}%";
+    public float CpuTemp { get; private set; }
+    public string CpuTempText => CpuTemp > 0 ? $"{CpuTemp:F0} °C" : "-";
+    public string CpuName { get; private set; } = "-";
+    public int CpuCores { get; private set; } = Environment.ProcessorCount;
 
-    public OverviewViewModel()
+    public float GpuUsage { get; private set; }
+    public string GpuUsageText => $"{GpuUsage:F0}%";
+    public float GpuTemp { get; private set; }
+    public string GpuTempText => GpuTemp > 0 ? $"{GpuTemp:F0} °C" : "-";
+    public string GpuName { get; private set; } = "-";
+    public string GpuMemory { get; private set; } = "-";
+    public string GpuDedicatedMemory { get; private set; } = "-";
+
+    public float MemoryPercent { get; private set; }
+    public string MemoryText { get; private set; } = "-";
+    public string MemoryAvailable { get; private set; } = "-";
+    public long TotalRamGb { get; private set; }
+
+    public float BatteryPercent { get; private set; } = -1;
+    public string BatteryText => BatteryPercent < 0 ? "No Battery" : $"{BatteryPercent:F0}%";
+
+    // Storage
+    public ObservableCollection<DriveInfoViewModel> Drives { get; } = new();
+
+    // Display
+    public string MonitorCount { get; private set; } = "-";
+    public string PrimaryResolution { get; private set; } = "-";
+    public string TotalPixels { get; private set; } = "-";
+
+    // System
+    public string OsName { get; private set; } = Environment.OSVersion.ToString();
+    public string OsVersion { get; private set; } = "-";
+    public string Architecture { get; private set; } = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+
+    // Optimize
+    public ObservableCollection<ProcessViewModel> Processes { get; } = new();
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public MainViewModel()
     {
-        _timer = new System.Threading.Timer(_ => Refresh(), null, 0, 1000);
+        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _timer.Tick += (s, e) => Refresh();
+        _timer.Start();
+        Refresh();
     }
 
     private void Refresh()
     {
+        var m = HardwareMonitor.Shared;
+        m.EnsureStarted();
+
+        CpuUsage = m.CpuUsagePercent;
+        CpuTemp = m.CpuTempC;
+        CpuName = m.CpuName;
+        GpuUsage = m.GpuUsagePercent;
+        GpuTemp = m.GpuTempC;
+        GpuName = m.GpuName;
+        GpuMemory = $"{m.GpuMemoryUsedMb:F0} MB / {m.GpuMemoryTotalMb:F0} MB";
+
+        MemoryPercent = m.RamPercent;
+        var usedGb = m.RamUsedGb;
+        var totalGb = m.RamTotalGb;
+        TotalRamGb = (long)totalGb;
+        MemoryText = $"{usedGb:F1} / {totalGb:F1} GB";
+        MemoryAvailable = $"{totalGb - usedGb:F1} GB Free";
+
+        BatteryPercent = m.BatteryPercent;
+
+        // Storage
+        RefreshStorage();
+        // Display
+        RefreshDisplay();
+        // Processes
+        RefreshProcesses();
+        // System
+        RefreshSystem();
+
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
+    }
+
+    private void RefreshStorage()
+    {
         try
         {
-            var m = HardwareMonitor.Shared;
-            CpuPercent = m.CpuUsagePercent;
-            CpuTempC = m.CpuTempC;
-            CpuName = m.CpuName;
-            GpuPercent = m.GpuUsagePercent;
-            GpuTempC = m.GpuTempC;
-            GpuName = m.GpuName;
-            RamTotalGb = m.RamTotalBytes / 1024 / 1024 / 1024;
-            RamUsedGb = m.RamUsedBytes / 1024 / 1024 / 1024;
-            RamPercent = m.RamTotalBytes > 0 ? (float)m.RamUsedBytes / m.RamTotalBytes * 100f : 0;
-            BatteryPercent = m.BatteryPercent;
-            BatteryPowerW = m.BatteryPowerWatts;
-            Uptime = FormatUptime();
+            var drives = DriveInfo.GetDrives();
+            Drives.Clear();
+            foreach (var d in drives)
+            {
+                if (!d.IsReady || d.DriveType == DriveType.Network || d.DriveType == DriveType.Ram) continue;
+                Drives.Add(new DriveInfoViewModel
+                {
+                    Name = d.Name,
+                    Label = d.VolumeLabel,
+                    Type = d.DriveType.ToString(),
+                    UsedBytes = d.TotalSize - d.AvailableFreeSpace,
+                    TotalBytes = d.TotalSize,
+                    UsedPercent = d.TotalSize > 0 ? (int)((d.TotalSize - d.AvailableFreeSpace) * 100 / d.TotalSize) : 0,
+                    UsageText = $"{FormatBytes(d.TotalSize - d.AvailableFreeSpace)} / {FormatBytes(d.TotalSize)}"
+                });
+            }
         }
         catch { }
     }
 
-    private static string FormatUptime()
+    private void RefreshDisplay()
     {
-        var uptime = Environment.TickCount64 / 1000;
-        var days = uptime / 86400;
-        var hrs = (uptime % 86400) / 3600;
-        var mins = (uptime % 3600) / 60;
-        return days > 0 ? $"{days}d {hrs}h {mins}m" : $"{hrs}h {mins}m";
-    }
-
-    public void Stop() => _timer.Dispose();
-}
-
-public partial class OptimizeViewModel : ObservableObject
-{
-    [ObservableProperty] private int _cleanCount = SettingsService.Current.TotalCleanCount;
-    [ObservableProperty] private bool _autoCleanEnabled = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty] private int _threshold = SettingsService.Current.CleanThresholdPercent;
-    [ObservableProperty] private string _lastResult = "-";
-    [ObservableProperty] private bool _isRunning = OptimizeService.IsRunning;
-
-    public ICommand CleanNowCommand { get; }
-    public ICommand ToggleAutoCommand { get; }
-    public ICommand SaveThresholdCommand { get; }
-
-    public OptimizeViewModel()
-    {
-        CleanNowCommand = new RelayCommand(async () =>
+        try
         {
-            await Task.Run(() =>
+            var screens = Screen.AllScreens;
+            MonitorCount = $"{screens.Length} monitor(s)";
+            if (screens.Length > 0)
             {
-                var r = MemoryOptimizer.CleanProcesses();
-                MemoryOptimizer.PurgeSystemFileCache();
-                SettingsService.IncrementCleanStat();
-                SettingsService.Save();
-                LastResult = $"Cleaned {r.Succeeded}, skipped {r.Skipped}, failed {r.Failed}";
-                CleanCount = SettingsService.Current.TotalCleanCount;
-            });
-        });
-        ToggleAutoCommand = new RelayCommand(() =>
-        {
-            AutoCleanEnabled = !AutoCleanEnabled;
-            SettingsService.Current.AutoCleanEnabled = AutoCleanEnabled;
-            IsRunning = AutoCleanEnabled;
-            if (AutoCleanEnabled) OptimizeService.StartAutoClean();
-            else OptimizeService.Stop();
-            SettingsService.Save();
-        });
-        SaveThresholdCommand = new RelayCommand(() =>
-        {
-            SettingsService.Current.CleanThresholdPercent = Threshold;
-            SettingsService.Save();
-        });
+                var primary = Screen.PrimaryScreen;
+                PrimaryResolution = $"{primary!.Bounds.Width} x {primary.Bounds.Height}";
+                long totalPixels = 0;
+                foreach (var s in screens) totalPixels += (long)s.Bounds.Width * s.Bounds.Height;
+                TotalPixels = $"{totalPixels:N0} total pixels";
+            }
+        }
+        catch { }
     }
-}
 
-public partial class SettingsViewModel : ObservableObject
-{
-    [ObservableProperty] private bool _autoStart = SettingsService.Current.AutoStartEnabled;
-    [ObservableProperty] private bool _autoClean = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty] private bool _toastOnClean = SettingsService.Current.ShowToastOnClean;
-
-    public ICommand SaveCommand { get; }
-
-    public SettingsViewModel()
+    private void RefreshProcesses()
     {
-        SaveCommand = new RelayCommand(() =>
+        try
         {
-            SettingsService.Current.AutoStartEnabled = AutoStart;
-            SettingsService.Current.AutoCleanEnabled = AutoClean;
-            SettingsService.Current.ShowToastOnClean = ToastOnClean;
-            SettingsService.Save();
-            if (AutoStart) StartupManager.Enable(); else StartupManager.Disable();
-            if (AutoClean) OptimizeService.StartAutoClean(); else OptimizeService.Stop();
-        });
-    }
-}
-
-public class SocViewModel : ObservableObject
-{
-    private readonly System.Threading.Timer _timer;
-    public float CpuPercent { get; private set; }
-    public float CpuTempC { get; private set; }
-    public string CpuName { get; private set; } = "-";
-    public float[] CoreUsages { get; private set; } = Array.Empty<float>();
-    public float GpuPercent { get; private set; }
-    public float GpuTempC { get; private set; }
-    public float GpuFreqMhz { get; private set; }
-    public string GpuName { get; private set; } = "-";
-
-    public SocViewModel()
-    {
-        _timer = new System.Threading.Timer(_ =>
-        {
-            var m = HardwareMonitor.Shared;
-            CpuPercent = m.CpuUsagePercent;
-            CpuTempC = m.CpuTempC;
-            CpuName = m.CpuName;
-            CoreUsages = m.CpuCoreUsage;
-            GpuPercent = m.GpuUsagePercent;
-            GpuTempC = m.GpuTempC;
-            GpuFreqMhz = m.GpuFreqMhz;
-            GpuName = m.GpuName;
-            OnPropertyChanged(nameof(CpuPercent));
-            OnPropertyChanged(nameof(CpuTempC));
-            OnPropertyChanged(nameof(CpuName));
-            OnPropertyChanged(nameof(CoreUsages));
-            OnPropertyChanged(nameof(GpuPercent));
-            OnPropertyChanged(nameof(GpuTempC));
-            OnPropertyChanged(nameof(GpuFreqMhz));
-            OnPropertyChanged(nameof(GpuName));
-        }, null, 0, 1000);
-    }
-}
-
-public class StorageViewModel : ObservableObject
-{
-    private readonly System.Threading.Timer _timer;
-    public long RamTotalGb { get; private set; }
-    public long RamUsedGb { get; private set; }
-    public float RamPercent { get; private set; }
-    public List<DiskDriveInfo> Drives { get; private set; } = new();
-
-    public StorageViewModel()
-    {
-        _timer = new System.Threading.Timer(_ =>
-        {
-            var m = HardwareMonitor.Shared;
-            RamTotalGb = m.RamTotalBytes / 1024 / 1024 / 1024;
-            RamUsedGb = m.RamUsedBytes / 1024 / 1024 / 1024;
-            RamPercent = m.RamTotalBytes > 0 ? (float)m.RamUsedBytes / m.RamTotalBytes * 100f : 0;
-            var drives = new List<DiskDriveInfo>();
-            foreach (var drive in System.IO.DriveInfo.GetDrives())
+            var ps = Process.GetProcesses();
+            Processes.Clear();
+            foreach (var p in ps)
             {
                 try
                 {
-                    if (drive.IsReady && drive.TotalSize > 0)
-                        drives.Add(new DiskDriveInfo(drive.Name, drive.VolumeLabel,
-                            drive.TotalSize / 1024 / 1024 / 1024,
-                            (drive.TotalSize - drive.AvailableFreeSpace) / 1024 / 1024 / 1024));
-                } catch { }
+                    Processes.Add(new ProcessViewModel
+                    {
+                        Name = p.ProcessName,
+                        MemoryMB = (long)(p.WorkingSet64 / 1024 / 1024),
+                        CpuPercent = 0
+                    });
+                }
+                catch { }
             }
-            Drives = drives;
-            OnPropertyChanged(nameof(RamTotalGb));
-            OnPropertyChanged(nameof(RamUsedGb));
-            OnPropertyChanged(nameof(RamPercent));
-            OnPropertyChanged(nameof(Drives));
-        }, null, 0, 3000);
-    }
-}
-
-public record DiskDriveInfo(string Letter, string Label, long TotalGb, long UsedGb);
-
-public class ScreenViewModel : ObservableObject
-{
-    public ResolutionInfo Resolution { get; private set; } = new(0, 0);
-    public float RefreshRate { get; private set; }
-    public int Monitors { get; private set; } = 1;
-
-    public ScreenViewModel()
-    {
-        try
-        {
-            var primary = System.Windows.Forms.Screen.PrimaryScreen;
-            Resolution = new ResolutionInfo(primary?.Bounds.Width ?? 0, primary?.Bounds.Height ?? 0);
-            Monitors = System.Windows.Forms.Screen.AllScreens.Length;
-            RefreshRate = QueryRefreshRate();
-            OnPropertyChanged(nameof(Resolution));
-            OnPropertyChanged(nameof(RefreshRate));
-            OnPropertyChanged(nameof(Monitors));
+            var sorted = new ObservableCollection<ProcessViewModel>();
+            foreach (var p in Processes.OrderByDescending(x => x.MemoryMB).Take(50)) sorted.Add(p);
+            Processes.Clear();
+            foreach (var p in sorted) Processes.Add(p);
         }
         catch { }
     }
 
-    private static float QueryRefreshRate()
+    private void RefreshSystem()
     {
         try
         {
-            var primary = System.Windows.Forms.Screen.PrimaryScreen;
-            var name = primary?.DeviceName ?? "\\\\.\\DISPLAY1";
-            var hdc = GetDC(name);
-            if (hdc == IntPtr.Zero) return 60;
-            try
+            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
+            foreach (ManagementObject mo in searcher.Get())
             {
-                var value = GetDeviceCaps(hdc, 116);
-                return value > 0 ? value : 60;
+                OsName = $"{mo["Caption"]}";
+                OsVersion = $"{mo["Version"]} ({mo["BuildNumber"]})";
             }
-            finally { ReleaseDC(IntPtr.Zero, hdc); }
         }
-        catch { return 60; }
+        catch { }
     }
 
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern IntPtr GetDC(string deviceName);
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
-    [System.Runtime.InteropServices.DllImport("gdi32.dll")]
-    private static extern int GetDeviceCaps(IntPtr hdc, int index);
+    private static string FormatBytes(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        int order = 0;
+        double size = bytes;
+        while (size >= 1024 && order < sizes.Length - 1) { order++; size /= 1024; }
+        return $"{size:0.##} {sizes[order]}";
+    }
+
+    public void Dispose()
+    {
+        _timer.Stop();
+    }
 }
 
-public record ResolutionInfo(int Width, int Height) { public override string ToString() => $"{Width} x {Height}"; }
-
-public class SystemViewModel : ObservableObject
+public class DriveInfoViewModel
 {
-    public string OsCaption { get; private set; } = Environment.OSVersion.VersionString;
-    public string MachineName { get; private set; } = Environment.MachineName;
-    public string UserName { get; private set; } = Environment.UserName;
-    public string Framework { get; private set; } = Environment.Version.ToString();
-    public int ProcessorCount { get; private set; } = Environment.ProcessorCount;
-    public bool Is64Bit { get; private set; } = Environment.Is64BitOperatingSystem;
-    public string ArchitectureText => Is64Bit ? "64-bit" : "32-bit";
+    public string Name { get; set; } = "";
+    public string Label { get; set; } = "";
+    public string Type { get; set; } = "";
+    public long UsedBytes { get; set; }
+    public long TotalBytes { get; set; }
+    public int UsedPercent { get; set; }
+    public string UsageText { get; set; } = "";
+}
+
+public class ProcessViewModel
+{
+    public string Name { get; set; } = "";
+    public long MemoryMB { get; set; }
+    public float CpuPercent { get; set; }
+}
+
+/// <summary>
+/// 为每个页面提供独立的 ViewModel（共享同一个 MainViewModel 数据源）。
+/// </summary>
+public class HomeViewModel : MainViewModel { }
+public class SocViewModel : MainViewModel { }
+public class OptimizeViewModel : MainViewModel { }
+public class StorageViewModel : MainViewModel { }
+public class ScreenViewModel : MainViewModel { }
+public class SystemViewModel : MainViewModel
+{
+    public string AutoStartStatus => StartupManager.IsEnabled ? "Auto-start is ENABLED" : "Auto-start is DISABLED";
+    public string AutoStartButtonText => StartupManager.IsEnabled ? "Disable Auto-Start" : "Enable Auto-Start";
+    public void Refresh() => OnPropertyChanged(nameof(AutoStartStatus));
+    protected new event PropertyChangedEventHandler? PropertyChanged;
+    protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

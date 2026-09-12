@@ -1,0 +1,60 @@
+<Page x:Class="MuhanPerfOpt.Views.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:vm="clr-namespace:MuhanPerfOpt.ViewModels"
+      Title="Home"
+      Background="{DynamicResource BackgroundBrush}">
+    <Page.DataContext>
+        <vm:OverviewViewModel/>
+    </Page.DataContext>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <TextBlock Text="Overview" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
+            
+            <!-- Metric Cards -->
+            <UniformGrid Columns="2" Margin="0,0,0,16">
+                <hc:Card Margin="8" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="CPU Usage" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding CpuUsageText}" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,4"/>
+                        <ProgressBar Value="{Binding CpuUsage}" Maximum="100" Height="8" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </hc:Card>
+                <hc:Card Margin="8" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="GPU Usage" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding GpuUsageText}" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,4"/>
+                        <ProgressBar Value="{Binding GpuUsage}" Maximum="100" Height="8" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </hc:Card>
+                <hc:Card Margin="8" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Memory Used" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding MemoryText}" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,4"/>
+                        <ProgressBar Value="{Binding MemoryPercent}" Maximum="100" Height="8" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </hc:Card>
+                <hc:Card Margin="8" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Battery" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}"/>
+                        <TextBlock Text="{Binding BatteryText}" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,4"/>
+                        <ProgressBar Value="{Binding BatteryPercent}" Maximum="100" Height="8" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </hc:Card>
+            </UniformGrid>
+            
+            <!-- Quick Actions -->
+            <hc:Card Margin="8" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Quick Actions" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
+                    <UniformGrid Columns="3">
+                        <Button Content="Optimize Memory" Style="{StaticResource ButtonPrimaryStyle}" Click="Optimize_Click" Margin="4"/>
+                        <Button Content="Start Auto" Style="{StaticResource ButtonDefaultStyle}" Click="AutoStart_Click" Margin="4"/>
+                        <Button Content="Toggle Auto-Start" Style="{StaticResource ButtonDefaultStyle}" Click="ToggleBoot_Click" Margin="4"/>
+                    </UniformGrid>
+                </StackPanel>
+            </hc:Card>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

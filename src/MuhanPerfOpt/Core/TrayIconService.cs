@@ -1,77 +1,72 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.UI.Xaml;
 
 namespace MuhanPerfOpt.Core;
 
 /// <summary>
-/// 系统托盘图标。常驻后台，双击/右键菜单打开主窗口或手动清理。
+/// 系统托盘服务（WPF 兼容）。
+/// 简化实现 - 仅提供托盘图标基本功能。
 /// </summary>
-public static class TrayIconService
+public sealed class TrayIconService : IDisposable
 {
-    private static NotifyIcon? _tray;
-    private static Window? _mainWindow;
+    private NotifyIcon? _tray;
+    private readonly object _lock = new();
 
-    public static void Initialize(Window mainWindow)
+    public void Show(string text)
     {
-        _mainWindow = mainWindow;
-        if (_tray != null) return;
+        lock (_lock)
+        {
+            if (_tray != null) return;
 
-        _tray = new NotifyIcon
-        {
-            Text = "慕寒性能优化",
-            Visible = true,
-            // 用系统自带图标替代，避免图标资源缺失导致崩溃
-            Icon = SystemIcons.Shield
-        };
-
-        _tray.DoubleClick += (s, e) => ShowMain();
-        _tray.ContextMenuStrip = BuildMenu();
-    }
-
-    private static ContextMenuStrip BuildMenu()
-    {
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("打开主界面", null, (s, e) => ShowMain());
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("立即清理内存", null, (s, e) =>
-        {
-            var result = MemoryOptimizer.CleanProcesses();
-            MemoryOptimizer.PurgeSystemFileCache();
-            if (result.Succeeded > 0)
-                ToastService.ShowOptimized(result.Succeeded);
-        });
-        menu.Items.Add("后台监控", null, (s, e) =>
-        {
-            if (OptimizeService.IsRunning) OptimizeService.Stop();
-            else OptimizeService.StartAutoClean();
-        });
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("退出", null, (s, e) =>
-        {
-            OptimizeService.Stop();
-            TrayIcon.Dispose();
-            Environment.Exit(0);
-        });
-        return menu;
-    }
-
-    private static void ShowMain()
-    {
-        var w = _mainWindow;
-        if (w == null) return;
-        // 切到 UI 线程
-        try
-        {
-            w.DispatcherQueue.TryEnqueue(() =>
+            _tray = new NotifyIcon
             {
-                w.Activate();
-                w.AppWindow?.Show();
-            });
+                Visible = true,
+                Text = text,
+                Icon = SystemIcons.Application
+            };
+
+            var menu = new ContextMenuStrip();
+            menu.Items.Add("Show", null, (s, e) => ShowMainWindow());
+            menu.Items.Add("Optimize Now", null, (s, e) => OptimizeNow());
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add("Exit", null, (s, e) => ExitApp());
+            _tray.ContextMenuStrip = menu;
+            _tray.DoubleClick += (s, e) => ShowMainWindow();
         }
+    }
+
+    private static void ShowMainWindow()
+    {
+        foreach (System.Windows.Window w in System.Windows.Application.Current.Windows)
+        {
+            w.Show();
+            w.Activate();
+            return;
+        }
+    }
+
+    private static void OptimizeNow()
+    {
+        try { MemoryOptimizer.OptimizeAll(); }
         catch { }
     }
 
-    private static NotifyIcon TrayIcon { get => _tray!; }
+    private static void ExitApp()
+    {
+        System.Windows.Application.Current.Shutdown();
+    }
+
+    public void Dispose()
+    {
+        lock (_lock)
+        {
+            if (_tray != null)
+            {
+                _tray.Visible = false;
+                _tray.Dispose();
+                _tray = null;
+            }
+        }
+    }
 }

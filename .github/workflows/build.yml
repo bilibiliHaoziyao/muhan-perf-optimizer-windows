@@ -20,45 +20,8 @@ jobs:
       - name: Restore
         run: dotnet restore src/MuhanPerfOpt/MuhanPerfOpt.csproj
 
-      - name: Patch - skip XamlCompiler via MSBuild override + PriGen
-        shell: pwsh
-        run: |
-          $sdkPath = "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk"
-          # Patch PriGen targets
-          Get-ChildItem $sdkPath -Recurse -Filter "*.targets" | ForEach-Object {
-            $c = Get-Content $_.FullName -Raw
-            $new = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
-            if ($new -ne $c) {
-              Write-Host "Patched PriGen in $($_.FullName)"
-              Set-Content $_.FullName -Value $new -NoNewline
-            }
-          }
-          # Write a dummy XamlCompiler.exe that just exits 0
-          # Using a PowerShell script wrapper approach - create a bat that exits 0
-          $dummyDir = Join-Path $sdkPath (Get-ChildItem $sdkPath -Directory | Select-Object -First 1).Name + "\buildTransitive\..\tools\net472"
-          Write-Host "Dummy dir: $dummyDir"
-          $realExe = Join-Path $dummyDir "XamlCompiler.exe"
-          if (Test-Path $realExe) {
-            Move-Item $realExe "$realExe.real" -Force
-            # Create a minimal .NET exe that just exits 0 - use csc or just a bat
-            $batPath = Join-Path $dummyDir "XamlCompiler.cmd"
-            '@echo off' + [Environment]::NewLine + 'exit /b 0' | Set-Content $batPath
-            # But targets call .exe - so create a proper dummy exe using csc if available
-            $cscPath = (Get-ChildItem "$env:USERPROFILE\.nuget\packages" -Recurse -Filter "csc.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
-            if ($cscPath) {
-              Write-Host "Found csc at $cscPath"
-              $src = Join-Path $dummyDir "dummy.cs"
-              'using System;class XamlCompiler{static void Main(string[]a){Environment.Exit(0);}}' | Set-Content $src
-              & $cscPath /target:exe /out:$realExe $src
-              Remove-Item $src -Force
-            } else {
-              # No csc - just copy cmd as exe (won't work)
-              Write-Host "WARNING: csc not found, XamlCompiler.exe will fail"
-            }
-          }
-
       - name: Publish
-        run: dotnet publish src/MuhanPerfOpt/MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/win-x64 -m:1
+        run: dotnet publish src/MuhanPerfOpt/MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true -o publish/win-x64
 
       - name: Install Inno Setup
         if: success()

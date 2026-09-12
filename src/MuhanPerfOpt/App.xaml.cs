@@ -1,14 +1,7 @@
-using Microsoft.UI.Xaml;
+using System.Windows;
 
 namespace MuhanPerfOpt;
 
 public partial class App : Application
 {
-    public App() => InitializeComponent();
-
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        MainWindow w = new();
-        w.Activate();
-    }
 }
