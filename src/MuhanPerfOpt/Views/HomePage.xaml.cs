@@ -22,6 +22,6 @@ public partial class HomePage : Page
 
     private void ToggleBoot_Click(object sender, System.Windows.RoutedEventArgs e)
     {
-        StartupManager.ToggleAutoStart();
+        StartupManager.Toggle();
     }
 }

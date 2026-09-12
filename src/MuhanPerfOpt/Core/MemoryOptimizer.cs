@@ -96,3 +96,10 @@ public static class MemoryOptimizer
         public int Failed;
     }
 }
+
+    public static CleanResult OptimizeAll(ISet<string>? whitelist = null)
+    {
+        var result = CleanProcesses(whitelist);
+        PurgeSystemFileCache();
+        return result;
+    }

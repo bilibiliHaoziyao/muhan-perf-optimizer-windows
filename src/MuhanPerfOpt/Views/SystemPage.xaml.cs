@@ -10,7 +10,7 @@ public partial class SystemPage : Page
 
     private void ToggleStart_Click(object sender, RoutedEventArgs e)
     {
-        StartupManager.ToggleAutoStart();
+        StartupManager.Toggle();
         if (DataContext is ViewModels.SystemViewModel vm) vm.Refresh();
     }
 }
