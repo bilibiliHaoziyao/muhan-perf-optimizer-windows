@@ -1,7 +1,7 @@
 <Page x:Class="MuhanPerfOpt.Views.SocPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:hc="https://handyorg.github.io/handycontrol"
+      
       xmlns:vm="clr-namespace:MuhanPerfOpt.ViewModels"
       Title="CPU / GPU"
       Background="{DynamicResource BackgroundBrush}">
@@ -12,7 +12,7 @@
         <StackPanel Margin="24">
             <TextBlock Text="CPU & GPU Monitor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
             
-            <hc:Card Margin="8" Padding="16">
+            <Border Style="{StaticResource CardStyle}" Margin="8" Padding="16">
                 <StackPanel>
                     <TextBlock Text="CPU" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <Grid>
@@ -44,9 +44,9 @@
                         <TextBlock Grid.Column="1" Text="{Binding CpuCores}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
                 </StackPanel>
-            </hc:Card>
+            </Border>
 
-            <hc:Card Margin="8" Padding="16">
+            <Border Style="{StaticResource CardStyle}" Margin="8" Padding="16">
                 <StackPanel>
                     <TextBlock Text="GPU" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <Grid>
@@ -78,7 +78,7 @@
                         <TextBlock Grid.Column="1" Text="{Binding GpuMemory}" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}"/>
                     </Grid>
                 </StackPanel>
-            </hc:Card>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>

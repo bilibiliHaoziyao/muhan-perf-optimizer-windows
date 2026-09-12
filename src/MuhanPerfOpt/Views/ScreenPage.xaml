@@ -1,7 +1,7 @@
 <Page x:Class="MuhanPerfOpt.Views.ScreenPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:hc="https://handyorg.github.io/handycontrol"
+      
       xmlns:vm="clr-namespace:MuhanPerfOpt.ViewModels"
       Title="Display"
       Background="{DynamicResource BackgroundBrush}">
@@ -12,22 +12,22 @@
         <StackPanel Margin="24">
             <TextBlock Text="Display" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
             
-            <hc:Card Margin="8" Padding="16">
+            <Border Style="{StaticResource CardStyle}" Margin="8" Padding="16">
                 <StackPanel>
                     <TextBlock Text="Monitors" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <TextBlock Text="{Binding MonitorCount}" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="16" Margin="0,0,0,8"/>
                     <TextBlock Text="{Binding PrimaryResolution}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,4"/>
                     <TextBlock Text="{Binding TotalPixels}" Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-            </hc:Card>
+            </Border>
 
-            <hc:Card Margin="8" Padding="16">
+            <Border Style="{StaticResource CardStyle}" Margin="8" Padding="16">
                 <StackPanel>
                     <TextBlock Text="GPU" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <TextBlock Text="{Binding GpuName}" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="16" Margin="0,0,0,8"/>
                     <TextBlock Text="{Binding GpuDedicatedMemory}" Foreground="{DynamicResource SecondaryTextBrush}"/>
                 </StackPanel>
-            </hc:Card>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>
