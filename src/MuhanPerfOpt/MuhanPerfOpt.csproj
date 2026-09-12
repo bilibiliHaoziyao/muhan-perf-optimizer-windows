@@ -11,6 +11,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <DebugType>embedded</DebugType>
     <Version>74.1.0</Version>
     <AssemblyVersion>74.1.0</AssemblyVersion>
