@@ -9,12 +9,13 @@
     <Version>74.1.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 </Project>
