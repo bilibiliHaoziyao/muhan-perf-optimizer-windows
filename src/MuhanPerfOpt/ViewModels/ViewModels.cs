@@ -65,11 +65,11 @@ public partial class OverviewViewModel : ObservableObject
 
 public partial class OptimizeViewModel : ObservableObject
 {
-    [ObservableProperty]] private int _cleanCount = SettingsService.Current.TotalCleanCount;
-    [ObservableProperty]] private bool _autoCleanEnabled = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty]] private int _threshold = SettingsService.Current.CleanThresholdPercent;
-    [ObservableProperty]] private string _lastResult = "-";
-    [ObservableProperty]] private bool _isRunning = OptimizeService.IsRunning;
+    [ObservableProperty] private int _cleanCount = SettingsService.Current.TotalCleanCount;
+    [ObservableProperty] private bool _autoCleanEnabled = SettingsService.Current.AutoCleanEnabled;
+    [ObservableProperty] private int _threshold = SettingsService.Current.CleanThresholdPercent;
+    [ObservableProperty] private string _lastResult = "-";
+    [ObservableProperty] private bool _isRunning = OptimizeService.IsRunning;
 
     public ICommand CleanNowCommand { get; }
     public ICommand ToggleAutoCommand { get; }
@@ -108,9 +108,9 @@ public partial class OptimizeViewModel : ObservableObject
 
 public partial class SettingsViewModel : ObservableObject
 {
-    [ObservableProperty]] private bool _autoStart = SettingsService.Current.AutoStartEnabled;
-    [ObservableProperty]] private bool _autoClean = SettingsService.Current.AutoCleanEnabled;
-    [ObservableProperty]] private bool _toastOnClean = SettingsService.Current.ShowToastOnClean;
+    [ObservableProperty] private bool _autoStart = SettingsService.Current.AutoStartEnabled;
+    [ObservableProperty] private bool _autoClean = SettingsService.Current.AutoCleanEnabled;
+    [ObservableProperty] private bool _toastOnClean = SettingsService.Current.ShowToastOnClean;
 
     public ICommand SaveCommand { get; }
 
