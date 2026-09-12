@@ -36,7 +36,6 @@ jobs:
 
       - name: Publish app (SelfContained + SingleFile)
         run: |
-          cd win-app
           dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
             -c Release `
             -r win-x64 `
@@ -48,24 +47,24 @@ jobs:
 
       - name: Verify publish output
         run: |
-          Get-ChildItem -Recurse .\win-app\publish\win-x64 | Select-Object FullName, Length
+          Get-ChildItem -Recurse .\publish\win-x64 | Select-Object FullName, Length
 
       - name: Build Inno Setup installer
         run: |
-          & "$env:ISCC" .\win-app\setup\MuhanPerfOpt.iss
+          & "$env:ISCC" .\setup\MuhanPerfOpt.iss
 
       - name: Upload Setup artifact
         uses: actions/upload-artifact@v4
         with:
           name: MuhanPerfOpt-Setup
-          path: win-app\setup\output\*.exe
+          path: setup\output\*.exe
           retention-days: 30
 
       - name: Create GitHub Release (tag trigger)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: win-app/setup/output/*.exe
+          files: setup/output/*.exe
           generate_release_notes: true
           draft: false
           prerelease: false
