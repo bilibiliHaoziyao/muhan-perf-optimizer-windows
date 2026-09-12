@@ -2,19 +2,8 @@
 <Window
     x:Class="MuhanPerfOpt.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
-
-    <controls:NavigationView
-        x:Name="NavView"
-        PaneDisplayMode="Left"
-        IsSettingsVisible="True"
-        SettingsItemTag="settings">
-
-        <controls:NavigationView.MenuItems>
-            <controls:NavigationViewItem Content="概览" Tag="overview" Icon="{controls:SymbolIcon Symbol=Home}" />
-        </controls:NavigationView.MenuItems>
-
-        <Frame x:Name="ContentFrame" />
-    </controls:NavigationView>
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Padding="24">
+        <TextBlock Text="Hello WinUI 3" FontSize="24" />
+    </StackPanel>
 </Window>
