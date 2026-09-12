@@ -34,16 +34,14 @@ jobs:
           winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
           echo "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Publish app (SelfContained + SingleFile)
+      - name: Publish app (SelfContained)
         run: |
           dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj `
             -c Release `
             -r win-x64 `
             --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:EnableCompressionInSingleFile=true `
-            -p:DebugType=embedded `
-            -o .\publish\win-x64
+            -o .\publish\win-x64 `
+            -v minimal
 
       - name: Verify publish output
         run: |
