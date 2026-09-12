@@ -40,10 +40,10 @@
                 <StackPanel>
                     <TextBlock Text="Actions" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <UniformGrid Columns="2">
-                        <Button Content="Optimize All Memory" Style="{StaticResource ButtonPrimaryStyle}" Click="Optimize_Click" Margin="4"/>
-                        <Button Content="Optimize Selected Process" Style="{StaticResource ButtonDefaultStyle}" Click="OptimizeSelected_Click" Margin="4"/>
-                        <Button Content="Start Auto Cleanup" Style="{StaticResource ButtonDefaultStyle}" Click="StartAuto_Click" Margin="4"/>
-                        <Button Content="Stop Auto Cleanup" Style="{StaticResource ButtonDefaultStyle}" Click="StopAuto_Click" Margin="4"/>
+                        <Button Content="Optimize All Memory"  Click="Optimize_Click" Margin="4"/>
+                        <Button Content="Optimize Selected Process"  Click="OptimizeSelected_Click" Margin="4"/>
+                        <Button Content="Start Auto Cleanup"  Click="StartAuto_Click" Margin="4"/>
+                        <Button Content="Stop Auto Cleanup"  Click="StopAuto_Click" Margin="4"/>
                     </UniformGrid>
                 </StackPanel>
             </Border>

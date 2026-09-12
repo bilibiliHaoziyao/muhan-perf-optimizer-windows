@@ -76,7 +76,7 @@
                 <StackPanel>
                     <TextBlock Text="Startup" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <TextBlock Text="{Binding AutoStartStatus}" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
-                    <Button Content="{Binding AutoStartButtonText}" Click="ToggleStart_Click" Style="{StaticResource ButtonPrimaryStyle}" HorizontalAlignment="Left"/>
+                    <Button Content="{Binding AutoStartButtonText}" Click="ToggleStart_Click"  HorizontalAlignment="Left"/>
                 </StackPanel>
             </Border>
         </StackPanel>

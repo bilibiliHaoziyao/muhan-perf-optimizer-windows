@@ -49,9 +49,9 @@
                 <StackPanel>
                     <TextBlock Text="Quick Actions" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12"/>
                     <UniformGrid Columns="3">
-                        <Button Content="Optimize Memory" Style="{StaticResource ButtonPrimaryStyle}" Click="Optimize_Click" Margin="4"/>
-                        <Button Content="Start Auto" Style="{StaticResource ButtonDefaultStyle}" Click="AutoStart_Click" Margin="4"/>
-                        <Button Content="Toggle Auto-Start" Style="{StaticResource ButtonDefaultStyle}" Click="ToggleBoot_Click" Margin="4"/>
+                        <Button Content="Optimize Memory"  Click="Optimize_Click" Margin="4"/>
+                        <Button Content="Start Auto"  Click="AutoStart_Click" Margin="4"/>
+                        <Button Content="Toggle Auto-Start"  Click="ToggleBoot_Click" Margin="4"/>
                     </UniformGrid>
                 </StackPanel>
             </Border>
