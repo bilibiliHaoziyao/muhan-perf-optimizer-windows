@@ -1,74 +1,12 @@
-name: Build & Release
+name: Build
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      create_release:
-        description: 'Create GitHub Release'
-        required: true
-        default: true
-        type: boolean
-
-permissions:
-  contents: write
+    branches: [main]
 
 jobs:
-  build:
-    name: Build + Package (Windows x64)
+  test:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Install Inno Setup
-        run: |
-          winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
-          echo "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Restore NuGet packages
-        run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
-
-      - name: Patch PriGen targets
-        run: |
-          $targets = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets" | Select-Object -Last 1
-          Write-Host "Patching: $($targets.FullName)"
-          $content = Get-Content $targets.FullName -Raw
-          $content = $content -replace '<Microsoft\.Build\.Packaging\.Pri\.Tasks\.ExpandPriContent', '<!-- DISABLED -->'
-          Set-Content -Path $targets.FullName -Value $content -NoNewline
-          Write-Host "Patched successfully"
-
-      - name: Publish app
-        run: |
-          dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
-          if ($LASTEXITCODE -ne 0) { Write-Host "Publish failed!"; exit $LASTEXITCODE }
-
-      - name: Verify publish output
-        run: Get-ChildItem -Recurse .\publish\win-x64 | Select-Object FullName, Length
-
-      - name: Build Inno Setup installer
-        run: & "$env:ISCC" .\setup\MuhanPerfOpt.iss
-
-      - name: Upload Setup artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: MuhanPerfOpt-Setup
-          path: setup\output\*.exe
-          retention-days: 30
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: setup/output/*.exe
-          generate_release_notes: true
-          draft: false
-          prerelease: false
+      - uses: actions/checkout@v4
+      - run: Write-Host "Hello from Windows!"
