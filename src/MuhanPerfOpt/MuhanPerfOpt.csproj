@@ -4,37 +4,23 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>MuhanPerfOpt</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <Version>74.1.0</Version>
     <AssemblyVersion>74.1.0</AssemblyVersion>
     <FileVersion>74.1.0</FileVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <NoWarn>NU1701</NoWarn>
-    <!-- 让 SDK 自动发现 Page，不需要手动配置 -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- WinUI 3 / Windows App SDK (使用最新可用版本，避免 NU1603 警告) -->
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
-
-    <!-- MVVM 工具包 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-
-    <!-- 硬件监控 -->
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
-
-    <!-- 系统托盘 -->
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.0" />
-
-    <!-- JSON 配置 -->
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 </Project>
