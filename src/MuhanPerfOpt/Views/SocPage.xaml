@@ -10,7 +10,7 @@
     </Page.DataContext>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24">
-            <TextBlock Text="CPU & GPU Monitor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
+            <TextBlock Text="CPU &amp; GPU Monitor" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,24"/>
             
             <Border Style="{StaticResource CardStyle}" Margin="8" Padding="16">
                 <StackPanel>
