@@ -7,9 +7,11 @@
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <EnableMsixTooling>false</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
+    <GenerateAppxInstallerFile>false</GenerateAppxInstallerFile>
     <Version>74.1.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
