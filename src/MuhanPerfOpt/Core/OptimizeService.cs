@@ -1,3 +1,4 @@
+using Timer = System.Threading.Timer;
 using System;
 using System.Threading;
 
