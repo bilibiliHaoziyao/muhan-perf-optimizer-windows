@@ -20,27 +20,28 @@ jobs:
       - name: Restore
         run: dotnet restore src/MuhanPerfOpt/MuhanPerfOpt.csproj
 
-      - name: Patch targets
+      - name: Patch - replace XamlCompiler.exe with dummy
         shell: pwsh
         run: |
           $sdkPath = "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk"
+          $dummyContent = 'using System; class Dummy { static void Main(string[] a) { Console.WriteLine("XamlCompiler skipped"); Environment.Exit(0); } }'
           Get-ChildItem $sdkPath -Directory | ForEach-Object {
             $verPath = $_.FullName
+            # Patch PriGen
             Get-ChildItem "$verPath\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
               $c = Get-Content $_.FullName -Raw
-              $new = $c
-              # Patch 1: disable PriGen ExpandPriContent
-              $new = $new.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
-              # Patch 2: replace XamlCompiler.exe exec command with a no-op that creates output.json
-              # The targets file uses $(XamlCompilerPath) $(XamlCompilerInputJson) $(XamlCompilerOutputJson)
-              $new = $new.Replace(
-                'Command="$(XamlCompilerPath) $(XamlCompilerInputJson) $(XamlCompilerOutputJson)"',
-                'Command="cmd /c echo {} > $(XamlCompilerOutputJson)"'
-              )
+              $new = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
               if ($new -ne $c) {
-                Write-Host "Patched $($_.Name)"
+                Write-Host "Patched PriGen in $($_.Name)"
                 Set-Content $_.FullName -Value $new -NoNewline
               }
+            }
+            # Replace XamlCompiler.exe and XamlCompiler.dll with dummy
+            Get-ChildItem "$verPath\buildTransitive\..\tools\net472" -Filter "XamlCompiler*" -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "Replacing $($_.Name) at $($_.FullName)"
+              $bak = $_.FullName + ".bak"
+              Move-Item $_.FullName $bak -Force
+              Set-Content -Path $_.FullName -Value "" -NoNewline
             }
           }
 
