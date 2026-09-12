@@ -15,15 +15,17 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
-      - run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
+      - name: Restore
+        run: dotnet restore src/MuhanPerfOpt/MuhanPerfOpt.csproj
 
-      - name: Patch PriGen
+      - name: Patch PriGen targets
+        shell: pwsh
         run: |
           Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
             $c = Get-Content $_.FullName -Raw
-            $new = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED -->')
+            $new = $c.Replace("<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent", "<!-- DISABLED -->")
             if ($new -ne $c) {
               Write-Host "Patched $($_.Name)"
               Set-Content $_.FullName -Value $new -NoNewline
@@ -31,23 +33,19 @@ jobs:
           }
 
       - name: Publish
-        run: dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
+        run: dotnet publish src/MuhanPerfOpt/MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o publish/win-x64
 
-      # 下面的 step 只有在 Publish 成功时才会执行
-      - name: Verify
-        if: success()
-        run: Get-ChildItem -Recurse .\publish\win-x64 | Measure-Object | Select-Object Count
-
-      - name: Install Inno
+      - name: Install Inno Setup
         if: success()
         run: winget install --id JRSoftware.InnoSetup --silent --accept-package-agreements --accept-source-agreements
 
       - name: Build Installer
         if: success()
-        run: & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\setup\MuhanPerfOpt.iss
+        run: "& \"C:\Program Files (x86)\Inno Setup 6\ISCC.exe\" setup/MuhanPerfOpt.iss"
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Setup
         if: success()
+        uses: actions/upload-artifact@v4
         with:
-          name: Setup
-          path: setup\output\*.exe
+          name: muhan-perf-opt-setup
+          path: setup/output/*.exe
