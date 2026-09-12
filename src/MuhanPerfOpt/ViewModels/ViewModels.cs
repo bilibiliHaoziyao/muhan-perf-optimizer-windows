@@ -70,34 +70,41 @@ public partial class OptimizeViewModel : ObservableObject
     [ObservableProperty] private string _lastResult = "—";
     [ObservableProperty] private bool _isRunning = OptimizeService.IsRunning;
 
-    public ICommand CleanNowCommand { get; } = new RelayCommand(async () =>
+    public ICommand CleanNowCommand { get; }
+    public ICommand ToggleAutoCommand { get; }
+    public ICommand SaveThresholdCommand { get; }
+
+    public OptimizeViewModel()
     {
-        await Task.Run(() =>
+        CleanNowCommand = new RelayCommand(async () =>
         {
-            var r = MemoryOptimizer.CleanProcesses();
-            MemoryOptimizer.PurgeSystemFileCache();
-            SettingsService.IncrementCleanStat();
-            SettingsService.Save();
-            LastResult = $"清理 {r.Succeeded} 个进程（成功），跳过 {r.Skipped}，失败 {r.Failed}";
-            CleanCount = SettingsService.Current.TotalCleanCount;
+            await Task.Run(() =>
+            {
+                var r = MemoryOptimizer.CleanProcesses();
+                MemoryOptimizer.PurgeSystemFileCache();
+                SettingsService.IncrementCleanStat();
+                SettingsService.Save();
+                LastResult = $"Cleaned {r.Succeeded} processes, skipped {r.Skipped}, failed {r.Failed}";
+                CleanCount = SettingsService.Current.TotalCleanCount;
+            });
         });
-    });
 
-    public ICommand ToggleAutoCommand { get; } = new RelayCommand(() =>
-    {
-        AutoCleanEnabled = !AutoCleanEnabled;
-        SettingsService.Current.AutoCleanEnabled = AutoCleanEnabled;
-        IsRunning = AutoCleanEnabled;
-        if (AutoCleanEnabled) OptimizeService.StartAutoClean();
-        else OptimizeService.Stop();
-        SettingsService.Save();
-    });
+        ToggleAutoCommand = new RelayCommand(() =>
+        {
+            AutoCleanEnabled = !AutoCleanEnabled;
+            SettingsService.Current.AutoCleanEnabled = AutoCleanEnabled;
+            IsRunning = AutoCleanEnabled;
+            if (AutoCleanEnabled) OptimizeService.StartAutoClean();
+            else OptimizeService.Stop();
+            SettingsService.Save();
+        });
 
-    public ICommand SaveThresholdCommand { get; } = new RelayCommand(() =>
-    {
-        SettingsService.Current.CleanThresholdPercent = Threshold;
-        SettingsService.Save();
-    });
+        SaveThresholdCommand = new RelayCommand(() =>
+        {
+            SettingsService.Current.CleanThresholdPercent = Threshold;
+            SettingsService.Save();
+        });
+    }
 }
 
 public partial class SettingsViewModel : ObservableObject
@@ -148,7 +155,7 @@ public class StorageViewModel : ObservableObject
     public long RamTotalGb { get; private set; }
     public long RamUsedGb { get; private set; }
     public float RamPercent { get; private set; }
-    public List<DiskDriveInfo> Drives { get; private set; } = new();
+    public List<DiskDriveInfo> Drives { get; private set; } = new(0, 0);
 
     public StorageViewModel()
     {
@@ -181,7 +188,7 @@ public record DiskDriveInfo(string Letter, string Label, long TotalGb, long Used
 
 public class ScreenViewModel : ObservableObject
 {
-    public ResolutionInfo Resolution { get; private set; } = new();
+    public ResolutionInfo Resolution { get; private set; } = new(0, 0);
     public float RefreshRate { get; private set; }
     public int Monitors { get; private set; } = 1;
 
