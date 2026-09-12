@@ -7,30 +7,22 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <SelfContained>true</SelfContained>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <EnableMsixTooling>true</EnableMsixTooling>
-    <DebugType>embedded</DebugType>
     <Version>74.1.0</Version>
     <AssemblyVersion>74.1.0</AssemblyVersion>
     <FileVersion>74.1.0</FileVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <NoWarn>NU1701</NoWarn>
-    <EnableDefaultPageItems>false</EnableDefaultPageItems>
-    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <!-- 让 SDK 自动发现 Page，不需要手动配置 -->
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- WinUI 3 / Windows App SDK -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240830007" />
+    <!-- WinUI 3 / Windows App SDK (使用最新可用版本，避免 NU1603 警告) -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
 
     <!-- MVVM 工具包 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-
-    <!-- Fluent 控件库 (Card / UniformGrid) -->
 
     <!-- 硬件监控 -->
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
@@ -40,24 +32,6 @@
 
     <!-- JSON 配置 -->
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
-  </ItemGroup>
-
-  <!-- WinUI 3 XAML 编译器 -->
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="**\*.xaml" Exclude="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Assets\icon.png" />
-    <Image Include="Assets\icon.png" />
-    <Resource Include="Assets\icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
