@@ -46,8 +46,18 @@ jobs:
               $inputJson = (Get-ChildItem ".\src\MuhanPerfOpt\obj\Release\*\win-x64\input.json" -ErrorAction SilentlyContinue | Select-Object -Last 1)
               if ($inputJson) {
                 Write-Host "Input JSON: $($inputJson.FullName)"
-                & $xc.FullName $inputJson.FullName "$env:TEMP\xaml_out.json" 2>&1 | Write-Host
+                Write-Host "=== input.json content ==="
+                Get-Content $inputJson.FullName | Select-Object -First 50
+                Write-Host ""
+                Write-Host "=== Running XamlCompiler manually ==="
+                $outJson = "$env:TEMP\xaml_out.json"
+                $stdout = "$env:TEMP\xaml_stdout.txt"
+                $stderr = "$env:TEMP\xaml_stderr.txt"
+                & $xc.FullName $inputJson.FullName $outJson 1>$stdout 2>$stderr
                 Write-Host "Exit code: $LASTEXITCODE"
+                if (Test-Path $stdout) { Write-Host "=== STDOUT ==="; Get-Content $stdout }
+                if (Test-Path $stderr) { Write-Host "=== STDERR ==="; Get-Content $stderr }
+                if (Test-Path $outJson) { Write-Host "=== OUTPUT JSON ==="; Get-Content $outJson }
               }
             }
             exit $LASTEXITCODE
