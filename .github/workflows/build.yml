@@ -41,7 +41,8 @@ jobs:
 
       - name: Build Installer
         if: success()
-        run: "run: "& \"C:\Program Files (x86)\Inno Setup 6\ISCC.exe\" setup/MuhanPerfOpt.iss" "C:/Program Files (x86)/Inno Setup 6/ISCC.exe" setup/MuhanPerfOpt.iss"
+        shell: pwsh
+        run: '& "C:/Program Files (x86)/Inno Setup 6/ISCC.exe" setup/MuhanPerfOpt.iss'
 
       - name: Upload Setup
         if: success()
