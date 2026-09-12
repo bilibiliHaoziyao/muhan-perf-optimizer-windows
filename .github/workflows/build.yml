@@ -19,4 +19,14 @@ jobs:
 
       - run: dotnet restore .\src\MuhanPerfOpt\MuhanPerfOpt.csproj
 
-      - run: Write-Host "Restore done"
+      - name: Patch PriGen
+        run: |
+          $files = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive\MrtCore.PriGen.targets"
+          foreach ($f in $files) {
+            Write-Host "Patching $($f.FullName)"
+            $c = Get-Content $f.FullName -Raw
+            $c = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED -->')
+            Set-Content $f.FullName -Value $c -NoNewline
+          }
+
+      - run: dotnet publish .\src\MuhanPerfOpt\MuhanPerfOpt.csproj -c Release -r win-x64 --self-contained true --no-restore -o .\publish\win-x64
