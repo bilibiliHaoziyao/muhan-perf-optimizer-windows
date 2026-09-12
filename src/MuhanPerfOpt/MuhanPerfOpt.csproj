@@ -5,6 +5,9 @@
     <RootNamespace>MuhanPerfOpt</RootNamespace>
     <Platforms>x64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <!-- 关键：禁用 MSIX 打包（我们用 Inno Setup），需要 Appx 打包工具才会跑 PriGen -->
+    <EnableMsixTooling>false</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
 
   <ItemGroup>
