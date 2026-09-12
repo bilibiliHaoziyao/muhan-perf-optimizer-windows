@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <!-- WinUI 3 / Windows App SDK -->
-    <FrameworkReference Include="Microsoft.WindowsAppSDK" Version="1.6.240830007" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240830007" />
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
 
