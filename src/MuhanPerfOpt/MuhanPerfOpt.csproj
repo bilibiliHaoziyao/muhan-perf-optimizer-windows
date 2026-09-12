@@ -17,6 +17,8 @@
     <FileVersion>74.1.0</FileVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <NoWarn>NU1701</NoWarn>
+    <EnableDefaultPageItems>false</EnableDefaultPageItems>
+    <EnableDefaultApplicationDefinitionItems>false</EnableDefaultApplicationDefinition>
   </PropertyGroup>
 
   <ItemGroup>
