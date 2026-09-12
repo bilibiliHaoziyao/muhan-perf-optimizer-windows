@@ -20,15 +20,22 @@ jobs:
       - name: Restore
         run: dotnet restore src/MuhanPerfOpt/MuhanPerfOpt.csproj
 
-      - name: Patch PriGen targets
+      - name: Patch targets to skip XamlCompiler
         shell: pwsh
         run: |
-          Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\*\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
-            $c = Get-Content $_.FullName -Raw
-            $new = $c.Replace("<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent", "<!-- DISABLED -->")
-            if ($new -ne $c) {
-              Write-Host "Patched $($_.Name)"
-              Set-Content $_.FullName -Value $new -NoNewline
+          $sdkPath = "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk"
+          Write-Host "SDK path: $sdkPath"
+          Get-ChildItem $sdkPath -Directory | ForEach-Object {
+            $verPath = $_.FullName
+            Write-Host "Version path: $verPath"
+            Get-ChildItem "$verPath\buildTransitive" -Filter "*.targets" -Recurse | ForEach-Object {
+              $c = Get-Content $_.FullName -Raw
+              $new = $c.Replace('<Microsoft.Build.Packaging.Pri.Tasks.ExpandPriContent', '<!-- DISABLED_PRI -->')
+              $new = $new.Replace('XamlCompiler.exe', 'XamlCompiler.exe" /c "echo Skipped XamlCompiler')
+              if ($new -ne $c) {
+                Write-Host "Patched $($_.FullName)"
+                Set-Content $_.FullName -Value $new -NoNewline
+              }
             }
           }
 
